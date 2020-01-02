@@ -1,14 +1,13 @@
 import sys
+import timeit
 #function to be tested should be written HERE
 def sample_function():
-    b = 5 + 3
-    exemplar_list = []
-    exemplar_list.append(2)
-    exemplar_list.append(42)
-    exemplar_list.append(69)
-    b = b * 5
+    b = 11 + 3
+    a = b - 7
+    for i in range(3):
+        d = b * 3
 #end of function
-starting_line_number = 4 #starting line number of function being debugged (not including the function header), HAS TO BE changed appropriately by programmer depending on where they write the function
+starting_line_number = 5 #starting line number of function being debugged (not including the function header), HAS TO BE changed appropriately by programmer depending on where they write the function
 
 
     
@@ -18,70 +17,86 @@ def trace_calls(frame, event, arg): #traces the call of the function to be teste
 
 var_values = []
 var_names = []
+var_data_types = []
+var_line_numbers = []
+record_of_values = []
+line_counters = []
+times = []
+overall_total = 0.0
 previous_line_number = 0 #global variable used later on to solve minor bug
 def trace_lines(frame, event, arg):
     global var_values
     global var_names
+    global var_data_types
+    global var_line_numbers
+    global record_of_values
+    global times
+    global overall_total
     global previous_line_number
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
+        #this statement solves a minor bug where the same line number is output twice towards the end
+        if frame.f_lineno == previous_line_number: 
+           number_subtracted = starting_line_number - 1
+        else:
+            number_subtracted = starting_line_number
+
+        if len(line_counters) - 1 < frame.f_lineno - number_subtracted - 1:
+            line_counters.append(1)
+            times.append([])
+        else:
+            line_counters[frame.f_lineno - number_subtracted - 1] += 1
+                
         if len(frame.f_locals) != len(var_values): #checks whether a new variable has been created
             #unpacks the names of the variables and the values of the variables from the dictionary 'frame.f_locals' into 2 separate global lists
             var_names = list(frame.f_locals.keys()) 
             var_values = list(frame.f_locals.values())
             var_name_changed = var_names[len(var_names) - 1]
             var_value_changed = var_values[len(var_values) - 1]
-            if type(var_value_changed) is list:
-                file = open("List Values.txt", "w")
-                for i in range(len(var_value_changed)):
-                    file.write(str(var_value_changed[i]) + "\n")
-                file.close()
+            if type(var_value_changed) is int:
+                var_data_types.append("Integer")
+            elif type(var_value_changed) is float:
+                var_data_types.append("Floating point")
+            elif type(var_value_changed) is str:
+                var_data_types.append("String")
+            elif type(var_value_changed) is bool:
+                var_data_types.append("Boolean")
+            
+            var_line_numbers.append(frame.f_lineno - number_subtracted)
+            record_of_values.append([])
+            record_of_values[len(record_of_values) - 1].append(var_value_changed)
             #outputs the name and value of the new variable/list 
-            print("Line " + str(frame.f_lineno - starting_line_number) + ": " + "Value of " + var_name_changed + " is assigned " + str(var_value_changed))  
+            print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: " + "Value of " + var_name_changed + " is assigned " + str(var_value_changed))  
         else:
-            #this statement solves a minor bug where the same line number is output twice towards the end
-            if frame.f_lineno == previous_line_number: 
-                number_subtracted = starting_line_number - 1
-            else:
-                number_subtracted = starting_line_number
             #checks whether any previous variabls/lists have been changed
             temp_var_values = list(frame.f_locals.values())
             for i in range(len(temp_var_values)):
-                if type(temp_var_values[i]) is list: #checks whether the current object being worked with is a list
-                    change_in_list = output_list_changes(frame.f_lineno - number_subtracted, temp_var_values[i], var_names[i])
-                    if change_in_list == True:
-                        break
-                elif temp_var_values[i] != var_values[i]:
-                    print("Line " + str(frame.f_lineno - number_subtracted) + ": " + "Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]))
+                if temp_var_values[i] != var_values[i]:
+                    record_of_values[i].append(temp_var_values[i])
+                    print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1])+ " times: " + "Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]))
                     break
             var_values = temp_var_values
             previous_line_number = frame.f_lineno
-            
 
-
-
-
-def output_list_changes(lineno, new_list_values, list_name):
-    change_in_list = False
-    old_list_values = []
-    file = open("List Values.txt", "r")
-    file_data = "####"
-    while file_data != "":
-        file_data = file.readline()
-        if file_data != "":
-            old_list_values.append(file_data)
-    file.close()
-    if len(new_list_values) > len(old_list_values):
-        print("Line " + str(lineno) + ": element " + str(len(new_list_values) - 1) + " with a value of " + str(new_list_values[len(new_list_values) - 1]) + " added to list " + list_name)
-        change_in_list = True
-    file = open("List Values.txt", "w")
-    for i in new_list_values:
-        file.write(str(i) + "\n")
-    file.close()
-    return change_in_list
-
+        times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer())
+        overall_total += times[frame.f_lineno - number_subtracted - 1][len(times[frame.f_lineno - number_subtracted - 1]) - 1]
+        total = 0.0
+        for i in range(len(times[frame.f_lineno - number_subtracted - 1])):
+            total += times[frame.f_lineno - number_subtracted - 1][i]
+        average = total / len(times[frame.f_lineno - number_subtracted - 1])
+        print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
+        
 sys.settrace(trace_calls)
 sample_function() #function to be tested is called
+print()
+for i in range(len(var_names)):
+    print(var_data_types[i] + " variable of name " + var_names[i] + " instantiated on line " + str(var_line_numbers[i]) + " function 'sample_function'")
+    print("List of values that " + var_names[i] + " had been assigned: " + str(record_of_values[i]))
+    print()
 
-#the tuple 'frame.f_code.co_names' contains the names of the functions caled upon in 'sample_function'
-#try writing the list values to a text file to save them; as strange as it may be
+print()
+for i in range(len(line_counters)):
+    print("Line " + str(i + 1) + " was executed " + str(line_counters[i]) + " times")
+
+print()
+print("Total time for execution: " + str(overall_total) + " seconds")
