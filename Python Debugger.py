@@ -1,13 +1,14 @@
 import importlib.util #library used to import modules by their file path
 import sys
 import timeit
-file_path = input("Enter the file path of the module in which the function you would like to debug is located: ") #prompts user for the file path
-func_name = input("Enter the name of the function you would like to debug: ") #prompts user for the function name they want to debug
-print()
-#imports the module the user input
-spec = importlib.util.spec_from_file_location("", file_path)
-mod = importlib.util.module_from_spec(spec) 
-spec.loader.exec_module(mod)
+
+def import_module(func_name, file_path):#imports the module the user input
+    global mod
+    spec = importlib.util.spec_from_file_location("", file_path)
+    mod = importlib.util.module_from_spec(spec) 
+    spec.loader.exec_module(mod)
+    return func_name
+    
 
 text_file = open("Debugger Output.txt", "w") #opens the text file for which the output is written to
 
@@ -99,7 +100,8 @@ def trace_lines(frame, event, arg):
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
 
 
-        
+global func_name
+func_name = import_module("random_function", "path/to/file") #The name of the function to be debugged is passed as the first argument and the file path of the program is passed as the second parameter  
 sys.settrace(trace_calls)
 eval("mod." + func_name)() #function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
 #this outputs the results of the debugging i.e. all the variables, their data types, the lines they were instantiated on and the total time for execution
