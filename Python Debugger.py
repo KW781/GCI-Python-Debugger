@@ -3,8 +3,8 @@ import sys
 import timeit
 
 global func_name
-func_name = sys.argv[0]
-file_path = sys.argv[1]
+func_name = sys.argv[1]
+file_path = sys.argv[2]
 spec = importlib.util.spec_from_file_location("", file_path)
 mod = importlib.util.module_from_spec(spec) 
 spec.loader.exec_module(mod)
@@ -46,13 +46,13 @@ def trace_lines(frame, event, arg):
            number_subtracted = starting_line_number - 1
         else:
             number_subtracted = starting_line_number
-
+            
         if len(line_counters) - 1 < frame.f_lineno - number_subtracted - 1:
             line_counters.append(1) #adds a new element to line_counters if a new line has been reached i.e. not in a loop
             times.append([]) #adds a new list element to times so that the times of execution of this new line can be tracked
         else:
-            line_counters[frame.f_lineno - number_subtracted - 1] += 1 #if an already existing line is being executed, then increment the appropriate element of line_counters
-                
+            line_counters[frame.f_lineno - number_subtracted - 1] += 1 #if an already existing line is being executed, then increment the appropriate element of line_counters           
+
         if len(frame.f_locals) != len(var_values): #checks whether a new variable has been created
             #unpacks the names of the variables and the values of the variables from the dictionary 'frame.f_locals' into 2 separate global lists
             var_names = list(frame.f_locals.keys()) 
@@ -68,7 +68,8 @@ def trace_lines(frame, event, arg):
                 var_data_types.append("String")
             elif type(var_value_changed) is bool:
                 var_data_types.append("Boolean")
-            
+            elif type(var_value_changed) is list:
+                var_data_types.append("List")
             var_line_numbers.append(frame.f_lineno - number_subtracted) #a new variable has been created and therefore var_line_numbers needs to be appended with the line number this new variable was instantiated on
             record_of_values.append([]) #record_of_values also needs to be appended with a new list element to track the values this variable is assigned throughout the debugging of the program
             record_of_values[len(record_of_values) - 1].append(var_value_changed) #appends the appropriate list element of record_of_values with the value with which this new variable has been instantiated with
@@ -86,7 +87,8 @@ def trace_lines(frame, event, arg):
                     print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]))
                     break
             var_values = temp_var_values
-            previous_line_number = frame.f_lineno
+
+        previous_line_number = frame.f_lineno
 
         times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer()) #times how long it took to execute the line
         overall_total += times[frame.f_lineno - number_subtracted - 1][len(times[frame.f_lineno - number_subtracted - 1]) - 1] #increments the overall total for the execution of the whole program
@@ -98,6 +100,7 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
+
 
 
 sys.settrace(trace_calls)
