@@ -3,6 +3,7 @@ import sys
 import timeit
 
 if len(sys.argv) != 3:
+    print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
     sys.exit()
 global func_name
 func_name = sys.argv[1]
