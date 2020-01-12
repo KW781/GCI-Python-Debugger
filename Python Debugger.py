@@ -2,6 +2,8 @@ import importlib.util #library used to import modules by their file path
 import sys
 import timeit
 
+if len(sys.argv) != 3:
+    sys.exit()
 global func_name
 func_name = sys.argv[1]
 file_path = sys.argv[2]
