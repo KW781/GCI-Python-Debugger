@@ -5,16 +5,15 @@ import timeit
 if len(sys.argv) != 3:
     print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
     sys.exit()
-
-for i in range(len(sys.argv[1])):
-    if sys.argv[1][i] == '.':
-        print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
-        sys.exit()
-        
+  
 global func_name
 func_name = sys.argv[1]
 file_path = sys.argv[2]
-spec = importlib.util.spec_from_file_location("", file_path)
+try:
+    spec = importlib.util.spec_from_file_location("", file_path)
+except FileNotFoundError:
+    print("Error: Ensure the program exists in the same directory as this debugger or input the full file path of the program you want to debug")
+    sys.exit()
 mod = importlib.util.module_from_spec(spec) 
 spec.loader.exec_module(mod)
     
@@ -113,7 +112,11 @@ def trace_lines(frame, event, arg):
 
 
 sys.settrace(trace_calls)
-eval("mod." + func_name)() #function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
+try:
+    eval("mod." + func_name)()#function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
+except SyntaxError:
+    print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
+    sys.exit()    
 #this outputs the results of the debugging i.e. all the variables, their data types, the lines they were instantiated on and the total time for execution
 print()
 for i in range(len(var_names)):
