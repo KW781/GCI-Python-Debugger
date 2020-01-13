@@ -116,7 +116,11 @@ try:
     eval("mod." + func_name)()#function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
 except SyntaxError:
     print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
-    sys.exit()    
+    sys.exit()
+except AttributeError:
+    print("Error: Ensure the function exists in the program you want to debug")
+    sys.exit()
+    
 #this outputs the results of the debugging i.e. all the variables, their data types, the lines they were instantiated on and the total time for execution
 print()
 for i in range(len(var_names)):
