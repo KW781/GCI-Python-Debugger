@@ -1,7 +1,7 @@
 import importlib.util #library used to import modules by their file path
 import sys
 import timeit
-
+file = importlib.util.spec_from_file_location("", "hello")
 if len(sys.argv) != 3:
     print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
     sys.exit()
@@ -9,6 +9,9 @@ if len(sys.argv) != 3:
 global func_name
 func_name = sys.argv[1]
 file_path = sys.argv[2]
+if (file_path[len(file_path) - 3] + file_path[len(file_path) - 2] + file_path[len(file_path) - 1]) != (".py"):
+    print("Error: Ensure that the file is a python program. Remember: the second argument is the function name and the third is the file name")
+    sys.exit()
 try:
     spec = importlib.util.spec_from_file_location("", file_path)
 except FileNotFoundError:
@@ -35,7 +38,6 @@ record_of_values = [] #a list in which each element will be list, and each of th
 line_counters = [] #each element keeps track of a particular line number and counts how many times it has run e.g. for a for loop
 times = [] #a list in which each element is a list that tracks the time for each particular line to execute e.g. if line 3 was executed twice the element for line 3 will store the time for each of the 2 instances where the line was executed
 overall_total = 0.0 #a running total to calculate how long the program took to execute
-previous_line_number = 0 #global variable used later on to solve minor bug
 step_number = 1 #global variable that is a step number output to the text file
 def trace_lines(frame, event, arg):
     global var_values
@@ -50,11 +52,7 @@ def trace_lines(frame, event, arg):
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
         #this statement solves a minor bug where the same line number is output twice towards the end
-        if frame.f_lineno == previous_line_number: 
-           number_subtracted = starting_line_number - 1
-        else:
-            number_subtracted = starting_line_number
-            
+        number_subtracted = starting_line_number    
         if len(line_counters) - 1 < frame.f_lineno - number_subtracted - 1:
             line_counters.append(1) #adds a new element to line_counters if a new line has been reached i.e. not in a loop
             times.append([]) #adds a new list element to times so that the times of execution of this new line can be tracked
@@ -82,7 +80,12 @@ def trace_lines(frame, event, arg):
             record_of_values.append([]) #record_of_values also needs to be appended with a new list element to track the values this variable is assigned throughout the debugging of the program
             record_of_values[len(record_of_values) - 1].append(var_value_changed) #appends the appropriate list element of record_of_values with the value with which this new variable has been instantiated with
             #outputs the name and value of the new variable/list to both the console window and the text file
-            text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_name_changed + " is assigned " + str(var_value_changed) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
+            try:
+                text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_name_changed + " is assigned " + str(var_value_changed) + "\n")
+            except IndexError:
+                for i in range((frame._lineno - number_subtracted - 1) - (len(line_counters) - 1)):
+                    line_counters.append(1)
+                text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names_changed + " is assigned " + str(var_value_changed) + "\n")
             print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_name_changed + " is assigned " + str(var_value_changed))  
         else:
             #checks whether any previous variabls/lists have been changed
@@ -91,14 +94,23 @@ def trace_lines(frame, event, arg):
                 if temp_var_values[i] != var_values[i]:
                     record_of_values[i].append(temp_var_values[i]) #updates the appropriate list element of record_of_values with the new value of the variable
                     #outputs the new and old values of the variable to both the console window and the text file
-                    text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
+                    try:
+                        text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
+                    except IndexError:
+                        for i in range((frame._lineno - number_subtracted - 1) - (len(line_counters) - 1)):
+                            line_counters.append(1)
+                        text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
                     print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]))
                     break
             var_values = temp_var_values
 
-        previous_line_number = frame.f_lineno
 
-        times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer()) #times how long it took to execute the line
+        try:
+            times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer()) #times how long it took to execute the line
+        except IndexError:
+            times.append([])
+            times.append([])
+            times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer())
         overall_total += times[frame.f_lineno - number_subtracted - 1][len(times[frame.f_lineno - number_subtracted - 1]) - 1] #increments the overall total for the execution of the whole program
         step_number += 1
         #the following lines average the time spent on the current line, if the line has been executed multiple times in a loop and outputs the results
