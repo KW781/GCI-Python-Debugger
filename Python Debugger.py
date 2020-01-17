@@ -61,7 +61,7 @@ image_line_counter = 0
 for line in source_lines:
     draw.text((0, image_line_counter), line, fill = "rgb(0, 0, 0)", font = font)
     image_line_counter += 20
-image_line_counter += 50
+image_line_counter = 0
 images.append(img)
 img.save("Image.png")
 
@@ -137,8 +137,7 @@ def trace_lines(frame, event, arg):
                     line_counters.append(1)
                 text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names_changed + " is assigned " + str(var_value_changed) + "\n")
             message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + "times: Value of " + var_name_changed + " is assigned " + str(var_value_changed)
-            draw.text((0, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
-            #image_line_counter += 20
+            draw.text((450, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
             print(message)  
         else:
             #checks whether any previous variabls/lists have been changed
@@ -154,7 +153,7 @@ def trace_lines(frame, event, arg):
                             line_counters.append(1)
                         text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
                     message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i])
-                    draw.text((0, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
+                    draw.text((450, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
                     print(message)
                     break
                 
@@ -175,11 +174,10 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
-        draw.text((800, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
+        draw.text((1000, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
         img.save("Image.png")
-        draw.text((800, 20 * (frame.f_lineno - number_subtracted)), "Line running", fill = "rgb(255, 0, 0)", font = font)
-        images.append(img)
-        draw.text((800, 20 * (frame.f_lineno - number_subtracted)), "Line running", fill = "rgb(0, 0, 0)", font = font)        
+        draw.text((300, 20 * (frame.f_lineno - number_subtracted)), "Line running", fill = "rgb(0, 0, 255)", font = font)
+        images.append(img)      
         
 
 
