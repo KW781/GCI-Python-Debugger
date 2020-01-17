@@ -1,14 +1,28 @@
 import importlib.util #library used to import modules by their file path
 import sys
 import timeit
+import os
+from PIL import Image, ImageDraw, ImageFont
+import imageio
+import inspect
+
 file = importlib.util.spec_from_file_location("", "hello")
-if len(sys.argv) != 3:
-    print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
+if len(sys.argv) != 4:
+    print("Error: Ensure that 4 arguments are providedthe third should be the program you want to debug")
+    print("The first one is 'Python Debugger.py', which is the debugger")
+    print("The second should be the function name")
+    print("The third should be the name of the program you want to debug, if it's in the same directory as the debugger, or if it's not, the full file path of program")
+    print("The fourth parameter should be the name you want to give the GIF that this debugger creates of the debugging process. Make sure to include the file extension '.gif'")
     sys.exit()
-  
+
+
 global func_name
 func_name = sys.argv[1]
 file_path = sys.argv[2]
+gif_name = sys.argv[3]
+if (gif_name[len(gif_name) - 4] + gif_name[len(gif_name) - 3] + gif_name[len(gif_name) - 2] + gif_name[len(gif_name) - 1]) != (".gif"):
+    print("Error: Ensure the fourth parameter ends with the file extension '.gif'")
+    sys.exit()
 if (file_path[len(file_path) - 3] + file_path[len(file_path) - 2] + file_path[len(file_path) - 1]) != (".py"):
     print("Error: Ensure that the file is a python program. Remember: the second argument is the function name and the third is the file name")
     sys.exit()
@@ -19,10 +33,33 @@ except FileNotFoundError:
     sys.exit()
 mod = importlib.util.module_from_spec(spec) 
 spec.loader.exec_module(mod)
+
     
+source_lines = []
+text_file = open("Debugger Output.txt", "w")
+try:
+    text_file.write(inspect.getsource(eval("mod." + func_name)))
+except AttributeError:
+    print("Error: Ensure the function exists in the program you want to debug")
+    sys.exit()
+text_file.close()
+text_file = open("Debugger Output.txt", "r")
+one_line = "####"
+while one_line != "":
+    one_line = text_file.readline()
+    source_lines.append(one_line)
+text_file.close()
+text_file = open("Debugger Output.txt", "w")
+text_file.close()
+
+images = []
+images.append(Image.new("RGBA", (1280, 720), "white"))
+draw = ImageDraw.Draw(images[0])
+font = ImageFont.truetype("Antaro.ttf", size = 15)
+draw.text((0, 0), source_lines[0], fill = "rgb(0, 0, 0)", font = font)
+image_line_counter = 25
 
 text_file = open("Debugger Output.txt", "w") #opens the text file for which the output is written to
-
 
 def trace_calls(frame, event, arg): #traces the call of the function to be tested
     if frame.f_code.co_name == func_name:
@@ -49,6 +86,9 @@ def trace_lines(frame, event, arg):
     global overall_total
     global previous_line_number
     global step_number
+    global images
+    global image_line_counter
+    global font
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
         #this statement solves a minor bug where the same line number is output twice towards the end
@@ -58,7 +98,7 @@ def trace_lines(frame, event, arg):
             times.append([]) #adds a new list element to times so that the times of execution of this new line can be tracked
         else:
             line_counters[frame.f_lineno - number_subtracted - 1] += 1 #if an already existing line is being executed, then increment the appropriate element of line_counters           
-
+        images.append(Image.new("RGBA", (1280, 720), "white"))
         if len(frame.f_locals) != len(var_values): #checks whether a new variable has been created
             #unpacks the names of the variables and the values of the variables from the dictionary 'frame.f_locals' into 2 separate global lists
             var_names = list(frame.f_locals.keys()) 
@@ -86,7 +126,12 @@ def trace_lines(frame, event, arg):
                 for i in range((frame._lineno - number_subtracted - 1) - (len(line_counters) - 1)):
                     line_counters.append(1)
                 text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names_changed + " is assigned " + str(var_value_changed) + "\n")
-            print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_name_changed + " is assigned " + str(var_value_changed))  
+            message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + "times: Value of " + var_name_changed + " is assigned " + str(var_value_changed)
+            draw = ImageDraw.Draw(images[len(images) - 1])
+            draw.text((0, image_line_counter), source_lines[frame.f_lineno - number_subtracted - 1], fill = "rgb(0, 0, 0)", font = font)
+            draw.text((800 - len(message), image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
+            image_line_counter += 20
+            print(message)  
         else:
             #checks whether any previous variabls/lists have been changed
             temp_var_values = list(frame.f_locals.values()) 
@@ -100,11 +145,16 @@ def trace_lines(frame, event, arg):
                         for i in range((frame._lineno - number_subtracted - 1) - (len(line_counters) - 1)):
                             line_counters.append(1)
                         text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
-                    print("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]))
+                    message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i])
+                    draw = ImageDraw.Draw(images[len(images) - 1])
+                    draw.text((0, image_line_counter), source_lines[frame.f_lineno - number_subtracted - 1], fill = "rgb(0, 0, 0)", font = font)
+                    draw.text((800 - len(message), image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
+                    image_line_counter += 20
+                    print(message)
                     break
+                
             var_values = temp_var_values
-
-
+            
         try:
             times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer()) #times how long it took to execute the line
         except IndexError:
@@ -120,14 +170,22 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
+        if "draw" in locals():
+            draw.text((400, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
 
+        
 
 
 sys.settrace(trace_calls)
 try:
-    eval("mod." + func_name)()#function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
+    eval("mod." + func_name)() #function to be tested is called. Note: if there are any parameters for the function to be debugged they NEED to be passed in this statement
 except SyntaxError:
-    print("Error: Ensure that 3 arguments are provided. The first one is 'Python Debugger.py', which is the debugger. The second should be the function name and the third should be the program you want to debug")
+    print("Error: Ensure that 4 arguments are providedthe third should be the program you want to debug")
+    print("The first one is 'Python Debugger.py', which is the debugger")
+    print("The second should be the function name")
+    print("The third should be the name of the program you want to debug, if it's in the same directory as the debugger, or if it's not, the full file path of program")
+    print("The fourth parameter should be the name you want to give the GIF that this debugger creates of the debugging process. Make sure to include the file extension '.gif'")
+    sys.exit()
     sys.exit()
 except AttributeError:
     print("Error: Ensure the function exists in the program you want to debug")
@@ -154,3 +212,9 @@ print()
 text_file.write("Total time for execution: " + str(overall_total) + " seconds\n")
 print("Total time for execution: " + str(overall_total) + " seconds")
 text_file.close()
+white_image = Image.new("RGBA", (1280, 720), "white")
+final_images = []
+for i in range(len(images)):
+    if images[i] != white_image:
+        final_images.append(images[i])
+imageio.mimsave(gif_name, final_images, duration = 1.5)
