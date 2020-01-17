@@ -53,11 +53,17 @@ text_file = open("Debugger Output.txt", "w")
 text_file.close()
 
 images = []
-images.append(Image.new("RGBA", (1280, 720), "white"))
-draw = ImageDraw.Draw(images[0])
+img = Image.new("RGBA", (1280, 720), "white")
+draw = ImageDraw.Draw(img)
 font = ImageFont.truetype("Antaro.ttf", size = 15)
 draw.text((0, 0), source_lines[0], fill = "rgb(0, 0, 0)", font = font)
-image_line_counter = 25
+image_line_counter = 0
+for line in source_lines:
+    draw.text((0, image_line_counter), line, fill = "rgb(0, 0, 0)", font = font)
+    image_line_counter += 20
+image_line_counter += 50
+img.save("Image.png")
+images.append(img)
 
 text_file = open("Debugger Output.txt", "w") #opens the text file for which the output is written to
 
@@ -89,6 +95,8 @@ def trace_lines(frame, event, arg):
     global images
     global image_line_counter
     global font
+    global draw
+    global img
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
         #this statement solves a minor bug where the same line number is output twice towards the end
@@ -98,7 +106,9 @@ def trace_lines(frame, event, arg):
             times.append([]) #adds a new list element to times so that the times of execution of this new line can be tracked
         else:
             line_counters[frame.f_lineno - number_subtracted - 1] += 1 #if an already existing line is being executed, then increment the appropriate element of line_counters           
-        images.append(Image.new("RGBA", (1280, 720), "white"))
+
+        img = Image.open("Image.png")
+        draw = ImageDraw.Draw(img)
         if len(frame.f_locals) != len(var_values): #checks whether a new variable has been created
             #unpacks the names of the variables and the values of the variables from the dictionary 'frame.f_locals' into 2 separate global lists
             var_names = list(frame.f_locals.keys()) 
@@ -127,10 +137,8 @@ def trace_lines(frame, event, arg):
                     line_counters.append(1)
                 text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names_changed + " is assigned " + str(var_value_changed) + "\n")
             message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + "times: Value of " + var_name_changed + " is assigned " + str(var_value_changed)
-            draw = ImageDraw.Draw(images[len(images) - 1])
-            draw.text((0, image_line_counter), source_lines[frame.f_lineno - number_subtracted - 1], fill = "rgb(0, 0, 0)", font = font)
-            draw.text((800 - len(message), image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
-            image_line_counter += 20
+            draw.text((0, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
+            #image_line_counter += 20
             print(message)  
         else:
             #checks whether any previous variabls/lists have been changed
@@ -146,15 +154,13 @@ def trace_lines(frame, event, arg):
                             line_counters.append(1)
                         text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
                     message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i])
-                    draw = ImageDraw.Draw(images[len(images) - 1])
-                    draw.text((0, image_line_counter), source_lines[frame.f_lineno - number_subtracted - 1], fill = "rgb(0, 0, 0)", font = font)
-                    draw.text((800 - len(message), image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
-                    image_line_counter += 20
+                    draw.text((0, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
+                    #image_line_counter += 20
                     print(message)
                     break
                 
             var_values = temp_var_values
-            
+        image_line_counter += 20  
         try:
             times[frame.f_lineno - number_subtracted - 1].append(timeit.default_timer()) #times how long it took to execute the line
         except IndexError:
@@ -170,9 +176,9 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
-        if "draw" in locals():
-            draw.text((400, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
-
+        draw.text((800, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
+        img.save("Image.png")
+        images.append(img)
         
 
 
@@ -212,9 +218,4 @@ print()
 text_file.write("Total time for execution: " + str(overall_total) + " seconds\n")
 print("Total time for execution: " + str(overall_total) + " seconds")
 text_file.close()
-white_image = Image.new("RGBA", (1280, 720), "white")
-final_images = []
-for i in range(len(images)):
-    if images[i] != white_image:
-        final_images.append(images[i])
-imageio.mimsave(gif_name, final_images, duration = 1.5)
+imageio.mimsave(gif_name, images, duration = 1.5)
