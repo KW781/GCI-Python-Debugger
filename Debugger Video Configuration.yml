@@ -1,0 +1,5 @@
+running_speed: 1.5
+font_to_use: "random.ttf"
+font_size: 15
+intro_text: "Quicksort implementation for CS exam, by Joe Developer"
+display_program_name: True
