@@ -176,7 +176,8 @@ def trace_lines(frame, event, arg):
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
         draw.text((1000, image_line_counter - 20), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
         img.save("Image.png")
-        draw.text((300, 20 * (frame.f_lineno - number_subtracted)), "Line running", fill = "rgb(0, 0, 255)", font = font)
+        draw.text((0, 20 * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(255, 255, 255)", font = font)
+        draw.text((0, 20 * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(0, 0, 255)", font = font)
         images.append(img)      
         
 
