@@ -18,3 +18,8 @@ sure it ends with the file extension '.gif'
 
 After the debugging process, an image will be created within the same directory as the debugger. This was just created as a part of the 
 video generation process, and can be deleted after the debugger has finished running.
+
+Here's an exemplar of a .gif file created by the debugger:
+
+
+![](https://github.com/Knob781/GCI-Python-Debugger/blob/master/Test.gif)
