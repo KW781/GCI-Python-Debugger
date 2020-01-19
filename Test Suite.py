@@ -47,3 +47,11 @@ def selection_sort():
             if input_list[min_idx] > input_list[j]:
                 min_idx = j
         input_list[idx], input_list[min_idx] = input_list[min_idx], input_list[idx]
+
+
+def random_function(number):
+    number = number * 3
+    b = number - 5
+    print("Hello World!")
+    print("My name is Knob")
+    b = b * 5
