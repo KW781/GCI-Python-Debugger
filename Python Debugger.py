@@ -56,6 +56,8 @@ else:
     config_details.append(15)
     config_details.append("")
     config_details.append(False)
+    config_details.append(1280)
+    config_details.append(720)
 
 
     
@@ -77,7 +79,7 @@ text_file = open("Debugger Output.txt", "w")
 text_file.close()
 
 images = []
-img = Image.new("RGBA", (1280, 720), "white")
+img = Image.new("RGBA", (config_details[5], config_details[6]), "white")
 draw = ImageDraw.Draw(img)
 try:
     font = ImageFont.truetype(config_details[1], size = config_details[2])
@@ -86,7 +88,7 @@ except OSError:
     sys.exit()
 draw.text((0, 0), config_details[3], fill = "rgb(0, 0, 0)", font = font)
 images.append(img)
-img = Image.new("RGBA", (1280, 720), "white")
+img = Image.new("RGBA", (config_details[5], config_details[6]), "white")
 draw = ImageDraw.Draw(img)
 image_line_counter = 0
 for line in source_lines:
@@ -115,6 +117,7 @@ line_counters = [] #each element keeps track of a particular line number and cou
 times = [] #a list in which each element is a list that tracks the time for each particular line to execute e.g. if line 3 was executed twice the element for line 3 will store the time for each of the 2 instances where the line was executed
 overall_total = 0.0 #a running total to calculate how long the program took to execute
 step_number = 1 #global variable that is a step number output to the text file
+output_line_number = (len(source_lines) + 5) * config_details[2] #a global variable to track the line number of the video frame on which the function output should be written
 def trace_lines(frame, event, arg):
     global var_values
     global var_names
@@ -130,6 +133,7 @@ def trace_lines(frame, event, arg):
     global font
     global draw
     global img
+    global output_line_number
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
         #this statement solves a minor bug where the same line number is output twice towards the end
@@ -208,6 +212,11 @@ def trace_lines(frame, event, arg):
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
         draw.text((1000, image_line_counter - (config_details[2] + 5)), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
+        if source_lines[frame.f_lineno - number_subtracted].strip()[:5] == "print":
+            output = source_lines[frame.f_lineno - number_subtracted].strip()[:-2]
+            output = output[7 : len(output)]
+            draw.text((0, output_line_number), output, fill = "rgb(255, 255, 0)", font = font)
+            output_line_number += (config_details[2] + 5)
         img.save("Image.png")
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(255, 255, 255)", font = font)
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(0, 0, 255)", font = font)
@@ -229,6 +238,10 @@ except SyntaxError:
 except AttributeError:
     print("Error: Ensure the function exists in the program you want to debug")
     sys.exit()
+except TypeError:
+    parameters = input("Enter the parameters you would like to pass to this function: ").split(',')
+    eval("mod." + func_name)(float(parameters[0]))
+    
     
 #this outputs the results of the debugging i.e. all the variables, their data types, the lines they were instantiated on and the total time for execution
 print()
