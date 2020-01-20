@@ -56,8 +56,17 @@ if len(sys.argv) == 5:
                     print("Error: There's a data type issue with the .yml file")
                     sys.exit()
         else:
-            print("Error: There's a data type issue with the .yml file")
-            sys.exit()
+            print("Error: There's a data type issue with the .yml file. Default configuration settings will be used instead")
+            config_details = []
+            config_details.append(1.5)
+            config_details.append("Antaro.ttf")
+            config_details.append(15)
+            config_details.append("")
+            config_details.append(False)
+            config_details.append(1280)
+            config_details.append(720)
+            config_details.append([])
+            config_details.append([])
     else:
         print("Error: Make sure you include the file extension '.yml'")
         sys.exit()
