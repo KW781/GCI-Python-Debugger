@@ -59,6 +59,7 @@ else:
     config_details.append(1280)
     config_details.append(720)
     config_details.append([])
+    config_details.append([])
 
 
     
@@ -175,14 +176,18 @@ def trace_lines(frame, event, arg):
                     line_counters.append(1)
                 text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names_changed + " is assigned " + str(var_value_changed) + "\n")
             message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_name_changed + " is assigned " + str(var_value_changed)
+            print(message)
             display_name = True
             for variable in config_details[7]:
                 if variable == var_name_changed:
                     display_name = False
-                    break
+                    break        
             if display_name == True:
-                draw.text((450, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
-            print(message)  
+                for variable in config_details[8]:
+                    print(variable)
+                    if variable == var_name_changed:
+                        message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of pointer variable is pointing to element " + str(var_value_changed)
+                draw.text((450, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)  
         else:
             #checks whether any previous variabls/lists have been changed
             temp_var_values = list(frame.f_locals.values()) 
@@ -197,14 +202,18 @@ def trace_lines(frame, event, arg):
                             line_counters.append(1)
                         text_file.write("Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i]) + "  " + str(overall_total) + " seconds   " + str(step_number) + "\n")
                     message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of " + var_names[i] + " is changed from " + str(var_values[i]) + " to " + str(temp_var_values[i])
+                    print(message)
                     display_name = True
                     for variable in config_details[7]:
                         if variable == var_names[i]:
                             display_name = False
                             break
                     if display_name == True:
+                        for variable in config_details[8]:
+                            print(variable)
+                            if variable == var_names[i]:
+                                message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of pointer variable is pointing to " + str(temp_var_values[i])
                         draw.text((450, image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
-                    print(message)
                     break
                 
             var_values = temp_var_values
