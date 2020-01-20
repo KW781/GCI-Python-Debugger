@@ -45,28 +45,29 @@ if len(sys.argv) == 5:
         except FileNotFoundError:
             print("Error: Make sure the yaml file either exists in the same directory as the debugger or input the full file path to the yaml file")
             sys.exit()
-        config_details = list(yaml.load(yaml_file, Loader = yaml.FullLoader).values())
-        if (type(config_details[0]) is float) and (type(config_details[1]) is str) and (type(config_details[2]) is int) and (type(config_details[3]) is str) and (type(config_details[4]) is bool) and (type(config_details[5]) is int) and (type(config_details[6]) is int):
-            for variable in config_details[7]:
-                if not(type(variable) is str):
-                    print("Error: There's a data type issue with the .yml file")
-                    sys.exit()
-            for variable in config_details[8]:
-                if not(type(variable) is str):
-                    print("Error: There's a data type issue with the .yml file")
-                    sys.exit()
-        else:
-            print("Error: There's a data type issue with the .yml file. Default configuration settings will be used instead")
-            config_details = []
-            config_details.append(1.5)
-            config_details.append("Antaro.ttf")
-            config_details.append(15)
-            config_details.append("")
-            config_details.append(False)
-            config_details.append(1280)
-            config_details.append(720)
-            config_details.append([])
-            config_details.append([])
+        file_config_details = list(yaml.load(yaml_file, Loader = yaml.FullLoader).values())
+        config_details = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for i in range(len(file_config_details)):
+            if (type(file_config_details[i]) is int) or (type(file_config_details[i]) is float):
+                if file_config_details[i] >= 100:
+                    config_details[5] = file_config_details[i]
+                    config_details[6] = file_config_details[i]
+                elif file_config_details[i] >= 10:
+                    config_details[2] = file_config_details[i]
+                elif file_config_details[i] >= 0:
+                    config_details[0] = file_config_details[i]
+
+            if type(file_config_details[i]) is str:
+                if file_config_details[i][len(file_config_details[i]) - 4 : len(file_config_details[i])] == ".ttf":
+                    config_details[1] = file_config_details[i]
+                else:
+                    config_details[3] = file_config_details[i]
+
+            if type(file_config_details[i]) is bool:
+                config_details[4] = file_config_details[i]
+
+            if type(file_config_details[i]) is list:
+                config_details[i] = file_config_details[i]
     else:
         print("Error: Make sure you include the file extension '.yml'")
         sys.exit()
@@ -81,7 +82,7 @@ else:
     config_details.append(720)
     config_details.append([])
     config_details.append([])
-
+print(config_details)
 
     
 source_lines = []

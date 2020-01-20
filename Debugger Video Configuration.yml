@@ -1,10 +1,10 @@
-running_speed: 1.5
-font_to_use: "Antaro.ttf"
-font_size: 15
+running_speed: 1280
+font_to_use: 1.5
+font_size: "Antaro.ttf"
 intro_text: "Quicksort implementation for CS exam, by Joe Developer"
-display_program_name: True
-x_resolution: 1280
-y_resolution: 720
+display_program_name: 720
+x_resolution: True
+y_resolution: 15
 muted_variables: 
     - "b"
     - "number"
