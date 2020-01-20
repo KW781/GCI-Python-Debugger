@@ -46,6 +46,18 @@ if len(sys.argv) == 5:
             print("Error: Make sure the yaml file either exists in the same directory as the debugger or input the full file path to the yaml file")
             sys.exit()
         config_details = list(yaml.load(yaml_file, Loader = yaml.FullLoader).values())
+        if (type(config_details[0]) is float) and (type(config_details[1]) is str) and (type(config_details[2]) is int) and (type(config_details[3]) is str) and (type(config_details[4]) is bool) and (type(config_details[5]) is int) and (type(config_details[6]) is int):
+            for variable in config_details[7]:
+                if not(type(variable) is str):
+                    print("Error: There's a data type issue with the .yml file")
+                    sys.exit()
+            for variable in config_details[8]:
+                if not(type(variable) is str):
+                    print("Error: There's a data type issue with the .yml file")
+                    sys.exit()
+        else:
+            print("Error: There's a data type issue with the .yml file")
+            sys.exit()
     else:
         print("Error: Make sure you include the file extension '.yml'")
         sys.exit()
