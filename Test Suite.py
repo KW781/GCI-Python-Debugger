@@ -1,3 +1,5 @@
+from binarytree import tree, Node
+from PIL import Image
 def bubble_sort():
     random_list = [3, 18, 2, 78, 56, 41]
     n = len(random_list) - 1
@@ -55,3 +57,14 @@ def random_function(number):
     print("Hello World!")
     print("My name is Knob")
     b = b * 5
+    my_numbers = [2, 3, 4, 5]
+    for i in range(len(my_numbers)):
+        my_numbers[i] += 1
+
+
+def binary_tree_testing():
+    my_tree = tree(height = 3, is_perfect = False)
+    print("Hello")
+    num = 5
+    num += 3
+

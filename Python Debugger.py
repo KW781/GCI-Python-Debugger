@@ -254,11 +254,11 @@ def trace_lines(frame, event, arg):
             output = output[7 : len(output)]
             draw.text((0, output_line_number), output, fill = "rgb(1, 150, 32)", font = font)
             output_line_number += (config_details[2] + 5)
+        if "draw_tree" in locals():
+            draw.text(((1000 / 1280) * config_details[5], (350 / 720) * config_details[6]), str(draw_tree), fill = "rgb(0, 0, 0)", font = font)
         img.save("Image.png")
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(255, 255, 255)", font = font)
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(0, 0, 255)", font = font)
-        if "draw_tree" in locals():
-            draw.text(((1000 / 1280) * config_details[5], image_line_counter + (200 / config_details[6])), str(draw_tree), fill = "rgb(0, 0, 0)", font = font)
         images.append(img)      
         
 
