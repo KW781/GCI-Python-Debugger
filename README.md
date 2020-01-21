@@ -12,18 +12,18 @@ Here's an exemplar of a .gif file created by the debugger:
 # How to use
 In order to use the program, 4 parameters need to be input via the command line:
 
-The first parameter is "Python Debugger.py" which is just the name of the debugger.
+* The first parameter is "Python Debugger.py" which is just the name of the debugger.
 
-The second paramter is the name of the function you want to debug within the program. Make sure the function actually exists in the program you want to debug or else an error is produced.
+* The second paramter is the name of the function you want to debug within the program. Make sure the function actually exists in the program you want to debug or else an error is produced.
 
-The third parameter is the name of the program of the program you want to debug. If the program exists within the same directory as the 
+* The third parameter is the name of the program of the program you want to debug. If the program exists within the same directory as the 
 debugger, then just the program name will work fine eg. "Sample Program.py". If the program doesn't exist within the same directory as the
 debugger, then the parameter will have to be the full file path to the program e.g. "C:/directory/directory/Sample Program.py"
 
-The fourth parameter is the name you want to give to the .gif file that the debugger produces of the program flow e.g. "Video.gif". Make 
+* The fourth parameter is the name you want to give to the .gif file that the debugger produces of the program flow e.g. "Video.gif". Make 
 sure it ends with the file extension '.gif'
 
-The fifth parameter is optional and it's the name of the editable .yml file containing the video configuration settings e.g. font size, font, etc. If this isn't given, then default settings will just be used.
+* The fifth parameter is optional and it's the name of the editable .yml file containing the video configuration settings e.g. font size, font, etc. If this isn't given, then default settings will just be used.
 
 If the function to be debugged requires paarameters to be passed to it, then after the debugger is called via a command line statement, the debugger will prompt the user of the debugger for input of the parameters to be input to the function. 
 
