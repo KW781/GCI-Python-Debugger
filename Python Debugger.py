@@ -45,29 +45,17 @@ if len(sys.argv) == 5:
         except FileNotFoundError:
             print("Error: Make sure the yaml file either exists in the same directory as the debugger or input the full file path to the yaml file")
             sys.exit()
-        file_config_details = list(yaml.load(yaml_file, Loader = yaml.FullLoader).values())
-        config_details = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        for i in range(len(file_config_details)):
-            if (type(file_config_details[i]) is int) or (type(file_config_details[i]) is float):
-                if file_config_details[i] >= 100:
-                    config_details[5] = file_config_details[i]
-                    config_details[6] = file_config_details[i]
-                elif file_config_details[i] >= 10:
-                    config_details[2] = file_config_details[i]
-                elif file_config_details[i] >= 0:
-                    config_details[0] = file_config_details[i]
-
-            if type(file_config_details[i]) is str:
-                if file_config_details[i][len(file_config_details[i]) - 4 : len(file_config_details[i])] == ".ttf":
-                    config_details[1] = file_config_details[i]
-                else:
-                    config_details[3] = file_config_details[i]
-
-            if type(file_config_details[i]) is bool:
-                config_details[4] = file_config_details[i]
-
-            if type(file_config_details[i]) is list:
-                config_details[i] = file_config_details[i]
+        config_details_dict = yaml.load(yaml_file, Loader = yaml.FullLoader)
+        config_details = []
+        config_details.append(config_details_dict["running_speed"])
+        config_details.append(config_details_dict["font_to_use"])
+        config_details.append(config_details_dict["font_size"])
+        config_details.append(config_details_dict["intro_text"])
+        config_details.append(config_details_dict["display_program_name"])
+        config_details.append(config_details_dict["x_resolution"])
+        config_details.append(config_details_dict["y_resolution"])
+        config_details.append(config_details_dict["muted_variables"])
+        config_details.append(config_details_dict["pointer_variables"])
     else:
         print("Error: Make sure you include the file extension '.yml'")
         sys.exit()
@@ -82,7 +70,7 @@ else:
     config_details.append(720)
     config_details.append([])
     config_details.append([])
-print(config_details)
+
     
 source_lines = []
 text_file = open("Debugger Output.txt", "w")
@@ -209,6 +197,9 @@ def trace_lines(frame, event, arg):
                 for variable in config_details[8]:
                     if variable == var_name_changed:
                         message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of pointer variable is pointing to element " + str(var_value_changed)
+                if type(var_value_changed) is mod.Node:
+                    message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Binary tree " + str(var_name_changed) + " drawn below"                    
+                    draw_tree = var_value_changed
                 draw.text(((450 / 1280) * config_details[5], image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)  
         else:
             #checks whether any previous variabls/lists have been changed
@@ -234,6 +225,9 @@ def trace_lines(frame, event, arg):
                         for variable in config_details[8]:
                             if variable == var_names[i]:
                                 message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Value of pointer variable is pointing to " + str(temp_var_values[i])
+                        if type(var_values[i]) is mod.Node:
+                            message = "Line " + str(frame.f_lineno - number_subtracted) + ", running " + str(line_counters[frame.f_lineno - number_subtracted - 1]) + " times: Binary tree " + str(var_names[i]) + " drawn below"
+                            draw_tree = var_values[i]
                         draw.text(((450 / 1280) * config_details[5], image_line_counter), message, fill = "rgb(0, 255, 0)", font = font)
                     break
                 
@@ -263,6 +257,8 @@ def trace_lines(frame, event, arg):
         img.save("Image.png")
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(255, 255, 255)", font = font)
         draw.text((0, (config_details[2] + 5) * (frame.f_lineno - number_subtracted)), source_lines[frame.f_lineno - number_subtracted], fill = "rgb(0, 0, 255)", font = font)
+        if "draw_tree" in locals():
+            draw.text(((1000 / 1280) * config_details[5], image_line_counter + (200 / config_details[6])), str(draw_tree), fill = "rgb(0, 0, 0)", font = font)
         images.append(img)      
         
 
