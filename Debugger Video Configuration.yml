@@ -1,4 +1,4 @@
-running_speed: 1280
+running_speed: 720
 font_to_use: 1.5
 font_size: "Antaro.ttf"
 intro_text: "Quicksort implementation for CS exam, by Joe Developer"
