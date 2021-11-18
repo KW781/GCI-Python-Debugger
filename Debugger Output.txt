@@ -1,1 +1,27 @@
-*this text is just a placeholder so that GitHub will let me upload the file*
+Line 1, running 1 times: Value of number is assigned 18.0
+Total time spent on line: 0.1158784 seconds     Average time spent on line: 0.1158784 seconds
+Line 2, running 1 times: Value of b is assigned 13.0
+Total time spent on line: 0.1192542 seconds     Average time spent on line: 0.1192542 seconds
+Line 4, running 1 times: Value of b is changed from 13.0 to 65.0  
+Total time spent on line: 0.1228784 seconds     Average time spent on line: 0.1228784 seconds
+Line 5, running 1 times: Value of my_numbers is assigned [2, 3, 4, 5]
+Total time spent on line: 0.1262845 seconds     Average time spent on line: 0.1262845 seconds
+
+Floating point variable of name number instantiated on line 1 function 'random_function'
+List of values that number had been assigned: [18.0]
+
+Floating point variable of name b instantiated on line 2 function 'random_function'
+List of values that b had been assigned: [13.0, 65.0]
+
+List variable of name my_numbers instantiated on line 5 function 'random_function'
+List of values that my_numbers had been assigned: [[2, 3, 4, 5]]
+
+
+Line 1 was executed 1 times
+Line 2 was executed 1 times
+Line 3 was executed 1 times
+Line 4 was executed 1 times
+Line 5 was executed 1 times
+Line 6 was executed 2 times
+
+Total time for execution: 17.7346827 seconds
