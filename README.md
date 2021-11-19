@@ -1,6 +1,8 @@
 # GCI-Python-Debugger
 
 # Description
+I developed this debugger for the open source organisation CCExtractorDevelopment, as part of a series of tasks in Google Code In 2019.
+
 This is a debugger that debugs a program, the name of which is input via command line. It'll also create a .gif file that shows the flow
 of the program as it runs and also writes the output of a debugger to both the console window and to a text file "Debugger Output.txt". This is a debugger that was written to complete a series of tasks for Google Code In 2019 and these tasks were assigned by the organisation CCExtractor Development.
 
