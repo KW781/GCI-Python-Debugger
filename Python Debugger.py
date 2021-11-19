@@ -148,7 +148,7 @@ def trace_lines(frame, event, arg):
 
     if frame.f_lineno > starting_line_number: #checks that the appropriate line number is reached at the start so any new variables can be added to the dictionary
         #this statement solves a minor bug where the same line number is output twice towards the end
-        number_subtracted = starting_line_number    
+        number_subtracted = starting_line_number
         if len(line_counters) - 1 < frame.f_lineno - number_subtracted - 1:
             line_counters.append(1) #adds a new element to line_counters if a new line has been reached i.e. not in a loop
             times.append([]) #adds a new list element to times so that the times of execution of this new line can be tracked
@@ -174,6 +174,9 @@ def trace_lines(frame, event, arg):
                 var_data_types.append("Boolean")
             elif type(var_value_changed) is list:
                 var_data_types.append("List")
+                #if it's a list, the variables storing the value should just be a copy of the list rather than a pointer to the list
+                var_values[len(var_values) - 1] = var_value_changed.copy()
+                var_value_changed = var_value_changed.copy()
             elif type(var_value_changed) is mod.Node:
                 var_data_types.append("Binary tree")
             var_line_numbers.append(frame.f_lineno - number_subtracted) #a new variable has been created and therefore var_line_numbers needs to be appended with the line number this new variable was instantiated on
@@ -248,7 +251,7 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
-        draw.text(((1000 / 1280) * config_details[5], image_line_counter - (config_details[2] + 5)), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
+        draw.text(((1000 / 1280) * config_details[5], image_line_counter - (config_details[2] + 5)), "Time spent: " + str(total / 20)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
         if source_lines[frame.f_lineno - number_subtracted].strip()[:5] == "print":
             output = source_lines[frame.f_lineno - number_subtracted].strip()[:-2]
             output = output[7 : len(output)]

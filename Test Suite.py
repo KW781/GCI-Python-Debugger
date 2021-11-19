@@ -55,11 +55,11 @@ def random_function(number):
     number = number * 3
     b = number - 5
     print("Hello World!")
-    print("My name is Knob")
     b = b * 5
     my_numbers = [2, 3, 4, 5]
-    for i in range(len(my_numbers)):
-        my_numbers[i] += 1
+    my_numbers[0] = 6
+    print("My name is Aarnob")
+    print()
 
 
 def binary_tree_testing():
