@@ -251,7 +251,7 @@ def trace_lines(frame, event, arg):
         average = total / len(times[frame.f_lineno - number_subtracted - 1])
         text_file.write("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds\n")
         print("Total time spent on line: " + str(total) + " seconds     Average time spent on line: " + str(average) + " seconds")
-        draw.text(((1000 / 1280) * config_details[5], image_line_counter - (config_details[2] + 5)), "Time spent: " + str(total / 20)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
+        draw.text(((1000 / 1280) * config_details[5], image_line_counter - (config_details[2] + 5)), "Time spent: " + str(total)[:5] + " seconds", fill = "rgb(255, 0, 0)", font = font)
         if source_lines[frame.f_lineno - number_subtracted].strip()[:5] == "print":
             output = source_lines[frame.f_lineno - number_subtracted].strip()[:-2]
             output = output[7 : len(output)]
